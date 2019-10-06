@@ -25,7 +25,10 @@ $(document).ready(function () {
             dateAdded: firebase.database.ServerValue.TIMESTAMP
         });
     });
+
     database.ref().on("child_added", function (snapshot) {  // LOOKS LIKE ANY OPERATION YOU DO WITH MOMENT, YOU HAVE TO GIVE IT THE TIME FOLLOWED BY ", HH:mm, or whatever format it is"
+
+    // "moment(time, its format)".  always give moment method the format of the time you are giving it
 
     console.log("EXAMPLE:  10 'oclock AM was " + moment().diff(moment("10:00", "HH:mm"), "minutes") + " minutes ago");
 
@@ -54,8 +57,35 @@ $(document).ready(function () {
         var nextArrival = moment().add(minutesAway, "minutes");
         var convertedNextArrival = moment(nextArrival, "X").format("HH:mm")
         
+        var newRowtag = "<tr>";
+        var newTd1 = "<td>" + trainName + "</td>";
+        var newTd2 = "<td>" + destination + "</td>";
+        var newTd3 = "<td>" + frequency + "</td>";
+        //var newTd3 = "<td>" + firstTrainTime + "</td>";
+        var newTd4 = "<td>" + convertedNextArrival + "</td>";
+        var newTd5 = "<td>" + minutesAway + "</td>";
+
+        var editButton = $("<button>");
+        editButton.addClass("editButton");
+        editButton.text("Edit Train Information");
+        console.log(editButton);
+
+
+        var newTd6 = "<td>" + $("<div>").addClass("testDiv") + "</td>";
         
-        /*
+        $(".testDiv").append("editButton");
+
+        var newRowEndTag = "</tr>";
+        $("#train-schedule-table").append(newRowtag + newTd1 + newTd2 + newTd3 + newTd4 + newTd5 + newTd6  + newRowEndTag);
+        $("#train-schedule-table").append(editButton);
+
+    });
+
+
+});
+
+
+  /*
 
         var convertedTime = moment(firstTrainTime, firstTrainTimeFormat);  // use moment method on start date and its format
         convertedTime.format("X")  // format it to something else if you wanted
@@ -64,23 +94,3 @@ $(document).ready(function () {
         var monthsWorked = moment().diff(moment(convertedDate,"X"), "months") // get the difference of converted date in the parameter you want
 
         */
-
-        var newRowtag = "<tr>";
-        var newTd1 = "<td>" + trainName + "</td>";
-        var newTd2 = "<td>" + destination + "</td>";
-        var newTd3 = "<td>" + frequency + "</td>";
-        //var newTd3 = "<td>" + firstTrainTime + "</td>";
-        var newTd4 = "<td>" + convertedNextArrival + "</td>";
-        var newTd5 = "<td>" + minutesAway + "</td>";
-        var newRowEndTag = "</tr>";
-        $("#train-schedule-table").append(newRowtag + newTd1 + newTd2 + newTd3 + newTd4 + newTd5 + newRowEndTag);
-
-
-
-    });
-
-
-
-});
-
-
