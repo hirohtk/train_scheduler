@@ -1,4 +1,10 @@
 $(document).ready(function () {
+
+    function refreshPage() {
+        location.reload();
+    }
+    setTimeout(refreshPage, 60000); // cheap way of updating all information every minute.  won't happen at the start of every minute though, depends on when user loads page
+
     var firebaseConfig = {
         apiKey: "AIzaSyCeOYF1FXNmEE_T070Oox-LHG7GlSiqvuE",
         authDomain: "train-scheduler-ec86d.firebaseapp.com",
@@ -202,7 +208,7 @@ $(document).ready(function () {
         });
 
 
-        $(document).unbind("click");
+        
     });
 });
 
