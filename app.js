@@ -28,7 +28,6 @@ $(document).ready(function () {
         });
     });
 
-   
 
     database.ref().on("child_added", function (snapshot) {  // LOOKS LIKE ANY OPERATION YOU DO WITH MOMENT, YOU HAVE TO GIVE IT THE TIME FOLLOWED BY ", HH:mm, or whatever format it is"
 
@@ -47,7 +46,7 @@ $(document).ready(function () {
         var destination = snapshot.val().destination;
         var firstTrainTime = snapshot.val().firstTrainTime;
         var frequency = snapshot.val().frequency;
-        
+
 
         /*var firstTrainTimeFormat = moment(firstTrainTime, "HH:mm"); // define what format it is
         var convertedFirstTrainTime = firstTrainTimeFormat.format("HH:mm");      
@@ -71,61 +70,61 @@ $(document).ready(function () {
 
         //var newRowtag = "<tr id=" + trainNumber + ">"; // needed to do this with Jquery intead, below
 
+
+        /*
+            var newJqueryTd1 = $("<td>");
+            newJqueryTd1.addClass("trainName");
+            newJqueryTd1.html(trainName);
+            var newJqueryTd2 = $("<td>").html(destination);
+            var newJqueryTd3 = $("<td>").html(frequency);
+            var newJqueryTd4 = $("<td>").html(convertedNextArrival);
+            var newJqueryTd5 = $("<td>").html(minutesAway);
+        */
         var newJqueryRow = $("<tr>");
+
         var newTd1 = "<td class=" + trainName + ">" + trainName + "</td>";
         var newTd2 = "<td>" + destination + "</td>";
         var newTd3 = "<td>" + frequency + "</td>";
         var newTd4 = "<td>" + convertedNextArrival + "</td>";
         var newTd5 = "<td>" + minutesAway + "</td> + </tr>";
 
-        newJqueryRow.attr("id", trainName);
+        newJqueryRow.attr("trainName", trainName);
+        newJqueryRow.attr("destination", destination);
+        newJqueryRow.attr("frequency", frequency);
+        newJqueryRow.attr("nextArrival", convertedNextArrival);
+        newJqueryRow.attr("minutesAway", minutesAway);
         newJqueryRow.attr("snapshotKey", snapshotKey);
         newJqueryRow.append(newTd1 + newTd2 + newTd3 + newTd4 + newTd5);
 
-        console.log(newJqueryRow.attr("id"));
+        console.log(newJqueryRow.attr("trainName"));
 
         var removeButton = $("<button>");
         removeButton.addClass("removeButton");
         removeButton.text("Remove Train");
 
-        var editTrainNameButton = $("<button>");
-        editTrainNameButton.addClass("editNameButton");
-        editTrainNameButton.text("Edit Train Name");
+        var editTrainButton = $("<button>");
+        editTrainButton.addClass("editTrainButton");
+        editTrainButton.text("Edit Train Info");
 
         $("#train-schedule-table").append(newJqueryRow);
         //$("#train-schedule-table").append(newRowtag + newTd1 + newTd2 + newTd3 + newTd4 + newTd5 + newRowEndTag);
         newJqueryRow.append(removeButton);
+        newJqueryRow.append(editTrainButton);
 
         //$("." + trainName + "").append(editTrainNameButton);
         //newJqueryRow.append(editTrainButton);
         //newTd1.append(editTrainNameButton);
 
-        
-
-        $(".editNameButton").on("click", function () {
-
-            $(this).parent().append("<br><input type=text id=nameChange>")
-            $(this).parent().append("<br><button type=submit id=nameChangeButton>Submit Change</button>");
-            $("#nameChangeButton").on("click", function () {
-                var nameChange = $("#nameChange").val();
-                console.log(nameChange);
-                database.ref().set({
-                    trainName: nameChange,
-                });
-                //replaceWith("<td>" + 2 + "</td>")
-            });
 
 
 
-        });
 
     });
-    
-    $(document).on("click", ".removeButton", function () {
-        console.log($(this).parent().attr("id"));  // checking to see if this is a way to successfully identify the correct parent element tr based on the id that is set.  
-        console.log("CHECKING:" + $(this).parent().attr("snapshotKey"));
-        var snapshotKeySpecific = $(this).parent().attr("snapshotKey");
 
+    $(document).on("click", ".removeButton", function () { // dynamically created button needs to be referenced from document 
+        console.log($(this).parent().attr("id")); //still references the right ID using THIS (looking in Parent, which is the <tr>
+        var snapshotKeySpecific = $(this).parent().attr("snapshotKey");
+        // below had to be googled - essentially this was needed in order to specifically remove 
         var specificEntry = firebase.database().ref(snapshotKeySpecific);
         specificEntry.remove()
             .then(function () {
@@ -134,10 +133,77 @@ $(document).ready(function () {
             .catch(function (error) {
                 console.log("Remove failed: " + error.message)
             });
+        //above had to be googled
+
         $(this).parent().remove(); // removing parent also removes the removeButton
     });
 
+    $(document).on("click", ".editTrainButton", function () {
 
+        $(this).parent().append("<br><input type=text id=nameChange placeholder='New Train Name'>");
+        $(this).parent().append("<br><input type=text id=destinationChange placeholder='New Destination'>");
+        $(this).parent().append("<br><input type=text id=frequencyChange placeholder='New Frequency'>");
+        $(this).parent().append("<br><button type=submit id=changeButton>Submit Change</button>");
+        //var capturedName = $(this).parent().attr("id");
+        var snapshotKeySpecific = $(this).parent().attr("snapshotKey");
+        var specificEntry = firebase.database().ref(snapshotKeySpecific);
+
+        var convertedNextArrival = $(this).parent().attr("nextArrival"); // conserving the original values
+        var minutesAway = $(this).parent().attr("minutesAway"); // conserving the original values
+        
+
+        $("#changeButton").on("click", function () {
+            //event.preventDefault();
+            var nameChange = $("#nameChange").val();
+            var destinationChange = $("#destinationChange").val();
+            var frequencyChange = $("#frequencyChange").val();
+            specificEntry.update({ trainName: nameChange });
+            specificEntry.update({ destination: destinationChange });
+            specificEntry.update({ frequency: frequencyChange });
+
+            $(this).parent().empty(); // decided to wipe out the entire row, add a new one below
+
+            var trainName = nameChange;
+            var destination = destinationChange;
+            var frequency = frequencyChange;
+            
+
+            var newJqueryRow = $("<tr>");
+
+            var newTd1 = "<td class=" + trainName + ">" + trainName + "</td>";
+            var newTd2 = "<td>" + destination + "</td>";
+            var newTd3 = "<td>" + frequency + "</td>";
+            var newTd4 = "<td>" + convertedNextArrival + "</td>";
+            var newTd5 = "<td>" + minutesAway + "</td> + </tr>";
+
+            newJqueryRow.attr("trainName", trainName);
+            newJqueryRow.attr("destination", destination);
+            newJqueryRow.attr("frequency", frequency);
+            newJqueryRow.attr("nextArrival", convertedNextArrival);
+            newJqueryRow.attr("minutesAway", minutesAway);
+            //newJqueryRow.attr("snapshotKey", snapshotKey);
+            newJqueryRow.append(newTd1 + newTd2 + newTd3 + newTd4 + newTd5);
+
+            var removeButton = $("<button>");
+            removeButton.addClass("removeButton");
+            removeButton.text("Remove Train");
+
+            var editTrainNameButton = $("<button>");
+            editTrainNameButton.addClass("editTrainButton");
+            editTrainNameButton.text("Edit Train Info");
+
+            $("#train-schedule-table").append(newJqueryRow);
+            //$("#train-schedule-table").append(newRowtag + newTd1 + newTd2 + newTd3 + newTd4 + newTd5 + newRowEndTag);
+            newJqueryRow.append(removeButton);
+            newJqueryRow.append(editTrainNameButton);
+
+            location.reload();
+
+        });
+
+
+        $(document).unbind("click");
+    });
 });
 
 
