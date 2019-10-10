@@ -1,10 +1,10 @@
 $(document).ready(function () {
-
+    /*
     function refreshPage() {
         location.reload();
     }
     setTimeout(refreshPage, 60000); // cheap way of updating all information every minute.  won't happen at the start of every minute though, depends on when user loads page
-
+    */
     var firebaseConfig = {
         apiKey: "AIzaSyCeOYF1FXNmEE_T070Oox-LHG7GlSiqvuE",
         authDomain: "train-scheduler-ec86d.firebaseapp.com",
@@ -92,18 +92,20 @@ $(document).ready(function () {
         var newTd2 = "<td>" + destination + "</td>";
         var newTd3 = "<td>" + frequency + "</td>";
         var newTd4 = "<td>" + convertedNextArrival + "</td>";
-        var newTd5 = "<td>" + minutesAway + "</td> + </tr>";
-
+        var newTd5 = "<td>" + minutesAway + "</td>";
+        var newTd6 = "<td><button class = removeButton>Remove</button></td>";
+        var newTd7 = "<td><button class = editTrainButton>Edit</button></td> + </tr>";
+        // storing all of this variable information in the newJqueryRow element itself so it can be referenced again by other functions 
         newJqueryRow.attr("trainName", trainName);
         newJqueryRow.attr("destination", destination);
         newJqueryRow.attr("frequency", frequency);
         newJqueryRow.attr("nextArrival", convertedNextArrival);
         newJqueryRow.attr("minutesAway", minutesAway);
         newJqueryRow.attr("snapshotKey", snapshotKey);
-        newJqueryRow.append(newTd1 + newTd2 + newTd3 + newTd4 + newTd5);
+        newJqueryRow.append(newTd1 + newTd2 + newTd3 + newTd4 + newTd5 + newTd6 + newTd7);
 
         console.log(newJqueryRow.attr("trainName"));
-
+    /*
         var removeButton = $("<button>");
         removeButton.addClass("removeButton");
         removeButton.text("Remove Train");
@@ -111,11 +113,11 @@ $(document).ready(function () {
         var editTrainButton = $("<button>");
         editTrainButton.addClass("editTrainButton");
         editTrainButton.text("Edit Train Info");
-
+    */
         $("#train-schedule-table").append(newJqueryRow);
         //$("#train-schedule-table").append(newRowtag + newTd1 + newTd2 + newTd3 + newTd4 + newTd5 + newRowEndTag);
-        newJqueryRow.append(removeButton);
-        newJqueryRow.append(editTrainButton);
+        //newJqueryRow.append(removeButton);
+        //newJqueryRow.append(editTrainButton);
 
         //$("." + trainName + "").append(editTrainNameButton);
         //newJqueryRow.append(editTrainButton);
@@ -128,8 +130,9 @@ $(document).ready(function () {
     });
 
     $(document).on("click", ".removeButton", function () { // dynamically created button needs to be referenced from document 
-        console.log($(this).parent().attr("id")); //still references the right ID using THIS (looking in Parent, which is the <tr>
-        var snapshotKeySpecific = $(this).parent().attr("snapshotKey");
+        //console.log($(this).parent().parent().attr("id")); vestigial as of 10/9/2019
+        var snapshotKeySpecific = $(this).parent().parent().attr("snapshotKey"); // need to do parent of parent now because parent of buton used to just be the newJquery row, but now
+        // since the button is in a <td>, the parent of THAT is the newJquery row
         // below had to be googled - essentially this was needed in order to specifically remove 
         var specificEntry = firebase.database().ref(snapshotKeySpecific);
         specificEntry.remove()
@@ -140,8 +143,8 @@ $(document).ready(function () {
                 console.log("Remove failed: " + error.message)
             });
         //above had to be googled
-
-        $(this).parent().remove(); // removing parent also removes the removeButton
+        console.log($(this).parent().parent());
+        $(this).parent().parent().remove(); // removing parent also removes the removeButton
     });
 
     $(document).on("click", ".editTrainButton", function () {
@@ -151,11 +154,11 @@ $(document).ready(function () {
         $(this).parent().append("<br><input type=text id=frequencyChange placeholder='New Frequency'>");
         $(this).parent().append("<br><button type=submit id=changeButton>Submit Change</button>");
         //var capturedName = $(this).parent().attr("id");
-        var snapshotKeySpecific = $(this).parent().attr("snapshotKey");
-        var specificEntry = firebase.database().ref(snapshotKeySpecific);
+        var snapshotKeySpecific = $(this).parent().parent().attr("snapshotKey");
+        var specificEntry = firebase.database().ref(snapshotKeySpecific); //specificEntry points to a specific place in the database so it can be referenced below for an update
 
-        var convertedNextArrival = $(this).parent().attr("nextArrival"); // conserving the original values
-        var minutesAway = $(this).parent().attr("minutesAway"); // conserving the original values
+        var convertedNextArrival = $(this).parent().parent().attr("nextArrival"); // conserving the original values
+        var minutesAway = $(this).parent().parent().attr("minutesAway"); // conserving the original values
         
 
         $("#changeButton").on("click", function () {
@@ -167,7 +170,7 @@ $(document).ready(function () {
             specificEntry.update({ destination: destinationChange });
             specificEntry.update({ frequency: frequencyChange });
 
-            $(this).parent().empty(); // decided to wipe out the entire row, add a new one below
+            $(this).parent().parent().empty(); // decided to wipe out the entire row, add a new one below
 
             var trainName = nameChange;
             var destination = destinationChange;
@@ -181,15 +184,17 @@ $(document).ready(function () {
             var newTd3 = "<td>" + frequency + "</td>";
             var newTd4 = "<td>" + convertedNextArrival + "</td>";
             var newTd5 = "<td>" + minutesAway + "</td> + </tr>";
-
+            var newTd6 = "<td><button class = removeButton>Remove</button></td>";
+            var newTd7 = "<td><button class = editTrainButton>Edit</button></td> + </tr>";
+            // storing all of this variable information in the newJqueryRow element itself so it can be referenced again by other functions 
             newJqueryRow.attr("trainName", trainName);
             newJqueryRow.attr("destination", destination);
             newJqueryRow.attr("frequency", frequency);
             newJqueryRow.attr("nextArrival", convertedNextArrival);
             newJqueryRow.attr("minutesAway", minutesAway);
-            //newJqueryRow.attr("snapshotKey", snapshotKey);
-            newJqueryRow.append(newTd1 + newTd2 + newTd3 + newTd4 + newTd5);
-
+            newJqueryRow.attr("snapshotKey", snapshotKeySpecific);
+            newJqueryRow.append(newTd1 + newTd2 + newTd3 + newTd4 + newTd5 + newTd6 + newTd7);
+            /*
             var removeButton = $("<button>");
             removeButton.addClass("removeButton");
             removeButton.text("Remove Train");
@@ -197,11 +202,11 @@ $(document).ready(function () {
             var editTrainNameButton = $("<button>");
             editTrainNameButton.addClass("editTrainButton");
             editTrainNameButton.text("Edit Train Info");
-
+            */
             $("#train-schedule-table").append(newJqueryRow);
             //$("#train-schedule-table").append(newRowtag + newTd1 + newTd2 + newTd3 + newTd4 + newTd5 + newRowEndTag);
-            newJqueryRow.append(removeButton);
-            newJqueryRow.append(editTrainNameButton);
+            //newJqueryRow.append(removeButton);
+            //newJqueryRow.append(editTrainNameButton);
 
             location.reload();
 
