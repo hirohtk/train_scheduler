@@ -32,6 +32,10 @@ $(document).ready(function () {
             frequency: frequency,
             dateAdded: firebase.database.ServerValue.TIMESTAMP
         });
+        $("#train-name-input").val("");
+        $("#destination-input").val("");
+        $("#train-time-input").val("");
+        $("#frequency-input").val("");
     });
 
 
@@ -105,15 +109,15 @@ $(document).ready(function () {
         newJqueryRow.append(newTd1 + newTd2 + newTd3 + newTd4 + newTd5 + newTd6 + newTd7);
 
         console.log(newJqueryRow.attr("trainName"));
-    /*
-        var removeButton = $("<button>");
-        removeButton.addClass("removeButton");
-        removeButton.text("Remove Train");
-
-        var editTrainButton = $("<button>");
-        editTrainButton.addClass("editTrainButton");
-        editTrainButton.text("Edit Train Info");
-    */
+        /*
+            var removeButton = $("<button>");
+            removeButton.addClass("removeButton");
+            removeButton.text("Remove Train");
+    
+            var editTrainButton = $("<button>");
+            editTrainButton.addClass("editTrainButton");
+            editTrainButton.text("Edit Train Info");
+        */
         $("#train-schedule-table").append(newJqueryRow);
         //$("#train-schedule-table").append(newRowtag + newTd1 + newTd2 + newTd3 + newTd4 + newTd5 + newRowEndTag);
         //newJqueryRow.append(removeButton);
@@ -149,71 +153,87 @@ $(document).ready(function () {
 
     $(document).on("click", ".editTrainButton", function () {
 
-        $(this).parent().append("<br><input type=text id=nameChange placeholder='New Train Name'>");
-        $(this).parent().append("<br><input type=text id=destinationChange placeholder='New Destination'>");
-        $(this).parent().append("<br><input type=text id=frequencyChange placeholder='New Frequency'>");
-        $(this).parent().append("<br><button type=submit id=changeButton>Submit Change</button>");
+        $(this).parent().append("<input type=text id=nameChange style='display:block' placeholder='New Train Name'>");
+        $(this).parent().append("<input type=text id=destinationChange style='display:block' placeholder='New Destination'>");
+        $(this).parent().append("<input type=text id=frequencyChange style='display:block' placeholder='New Frequency'>");
+        $(this).parent().append("<button type=submit id=changeButton style='display:block' >Submit Change</button>");
+        $(this).parent().append("<button type=submit id=cancelButton style='display:block' >Cancel</button>");
         //var capturedName = $(this).parent().attr("id");
         var snapshotKeySpecific = $(this).parent().parent().attr("snapshotKey");
         var specificEntry = firebase.database().ref(snapshotKeySpecific); //specificEntry points to a specific place in the database so it can be referenced below for an update
 
         var convertedNextArrival = $(this).parent().parent().attr("nextArrival"); // conserving the original values
         var minutesAway = $(this).parent().parent().attr("minutesAway"); // conserving the original values
-        
+
+        $("#cancelButton").on("click", function () { //this turned out to be as easy as just removing all the fields/buttons/fields that was created by the edit button
+            $("#nameChange").remove();
+            $("#destinationChange").remove();
+            $("#frequencyChange").remove();
+            $("#changeButton").remove();
+            $(this).remove();
+        });
 
         $("#changeButton").on("click", function () {
             //event.preventDefault();
-            var nameChange = $("#nameChange").val();
-            var destinationChange = $("#destinationChange").val();
-            var frequencyChange = $("#frequencyChange").val();
-            specificEntry.update({ trainName: nameChange });
-            specificEntry.update({ destination: destinationChange });
-            specificEntry.update({ frequency: frequencyChange });
+            if ($("#nameChange").val().length != 0 && $("#destinationChange").val().length != 0 && $("#frequencyChange").val() != 0) {
+                console.log("all fields have values of some sort");
+                var nameChange = $("#nameChange").val();
+                var destinationChange = $("#destinationChange").val();
+                var frequencyChange = $("#frequencyChange").val();
+                specificEntry.update({ trainName: nameChange });
+                specificEntry.update({ destination: destinationChange });
+                specificEntry.update({ frequency: frequencyChange });
 
-            $(this).parent().parent().empty(); // decided to wipe out the entire row, add a new one below
+                $(this).parent().parent().empty(); // decided to wipe out the entire row, add a new one below
 
-            var trainName = nameChange;
-            var destination = destinationChange;
-            var frequency = frequencyChange;
-            
+                var trainName = nameChange;
+                var destination = destinationChange;
+                var frequency = frequencyChange;
 
-            var newJqueryRow = $("<tr>");
 
-            var newTd1 = "<td class=" + trainName + ">" + trainName + "</td>";
-            var newTd2 = "<td>" + destination + "</td>";
-            var newTd3 = "<td>" + frequency + "</td>";
-            var newTd4 = "<td>" + convertedNextArrival + "</td>";
-            var newTd5 = "<td>" + minutesAway + "</td> + </tr>";
-            var newTd6 = "<td><button class = removeButton>Remove</button></td>";
-            var newTd7 = "<td><button class = editTrainButton>Edit</button></td> + </tr>";
-            // storing all of this variable information in the newJqueryRow element itself so it can be referenced again by other functions 
-            newJqueryRow.attr("trainName", trainName);
-            newJqueryRow.attr("destination", destination);
-            newJqueryRow.attr("frequency", frequency);
-            newJqueryRow.attr("nextArrival", convertedNextArrival);
-            newJqueryRow.attr("minutesAway", minutesAway);
-            newJqueryRow.attr("snapshotKey", snapshotKeySpecific);
-            newJqueryRow.append(newTd1 + newTd2 + newTd3 + newTd4 + newTd5 + newTd6 + newTd7);
-            /*
-            var removeButton = $("<button>");
-            removeButton.addClass("removeButton");
-            removeButton.text("Remove Train");
+                var newJqueryRow = $("<tr>");
 
-            var editTrainNameButton = $("<button>");
-            editTrainNameButton.addClass("editTrainButton");
-            editTrainNameButton.text("Edit Train Info");
-            */
-            $("#train-schedule-table").append(newJqueryRow);
-            //$("#train-schedule-table").append(newRowtag + newTd1 + newTd2 + newTd3 + newTd4 + newTd5 + newRowEndTag);
-            //newJqueryRow.append(removeButton);
-            //newJqueryRow.append(editTrainNameButton);
+                var newTd1 = "<td class=" + trainName + ">" + trainName + "</td>";
+                var newTd2 = "<td>" + destination + "</td>";
+                var newTd3 = "<td>" + frequency + "</td>";
+                var newTd4 = "<td>" + convertedNextArrival + "</td>";
+                var newTd5 = "<td>" + minutesAway + "</td> + </tr>";
+                var newTd6 = "<td><button class = removeButton>Remove</button></td>";
+                var newTd7 = "<td><button class = editTrainButton>Edit</button></td> + </tr>";
+                // storing all of this variable information in the newJqueryRow element itself so it can be referenced again by other functions 
+                newJqueryRow.attr("trainName", trainName);
+                newJqueryRow.attr("destination", destination);
+                newJqueryRow.attr("frequency", frequency);
+                newJqueryRow.attr("nextArrival", convertedNextArrival);
+                newJqueryRow.attr("minutesAway", minutesAway);
+                newJqueryRow.attr("snapshotKey", snapshotKeySpecific);
+                newJqueryRow.append(newTd1 + newTd2 + newTd3 + newTd4 + newTd5 + newTd6 + newTd7);
+                /*
+                var removeButton = $("<button>");
+                removeButton.addClass("removeButton");
+                removeButton.text("Remove Train");
+    
+                var editTrainNameButton = $("<button>");
+                editTrainNameButton.addClass("editTrainButton");
+                editTrainNameButton.text("Edit Train Info");
+                */
+                $("#train-schedule-table").append(newJqueryRow);
+                //$("#train-schedule-table").append(newRowtag + newTd1 + newTd2 + newTd3 + newTd4 + newTd5 + newRowEndTag);
+                //newJqueryRow.append(removeButton);
+                //newJqueryRow.append(editTrainNameButton);
 
-            location.reload();
+                location.reload();
+            }
+            else {
+                alert("Please input a value for all fields. \n \nI would have liked to make it such that if you leave the field blank it keeps the default value, but didn't have time");
+                
+            }
+
 
         });
 
 
-        
+
     });
 });
 
